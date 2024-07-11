@@ -54,7 +54,7 @@ public class FilmController {
         throw new NotFoundException("Фильм с id = " + newFilm.getId() + " не найден");
     }
 
-    private void validateFilm (Film film) {
+    private void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Валидация не пройдена: название не может быть пустым");
             throw new ConditionsNotMetException("Название не может быть пустым");
