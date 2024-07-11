@@ -26,18 +26,8 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.error("Не удалось создать пользователя: электронная почта не может быть пустой и должна содержать символ @.");
-            throw new ConditionsNotMetException("Электронная почта не может быть пустой и должна содержать символ @");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.error("Не удалось создать пользователя: логин не может быть пустым и содержать пробелы.");
-            throw new ConditionsNotMetException("Логин не может быть пустым и содержать пробелы");
-        }
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Не удалось создать пользователя: дата рождения не может быть в будущем.");
-            throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
-        }
+        validateUser(user);
+
         user.setId(getNextId());
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -60,19 +50,7 @@ public class UserController {
         }
         if (users.containsKey(newUser.getId())) {
             User oldUser = users.get(newUser.getId());
-
-            if (newUser.getEmail() == null || newUser.getEmail().isBlank() || !newUser.getEmail().contains("@")) {
-                log.error("Не удалось обновить пользователя: электронная почта не может быть пустой и должна содержать символ @.");
-                throw new ConditionsNotMetException("Электронная почта не может быть пустой и должна содержать символ @");
-            }
-            if (newUser.getLogin() == null || newUser.getLogin().isBlank() || newUser.getLogin().contains(" ")) {
-                log.error("Не удалось обновить пользователя: логин не может быть пустым и содержать пробелы.");
-                throw new ConditionsNotMetException("Логин не может быть пустым и содержать пробелы");
-            }
-            if (newUser.getBirthday() != null && newUser.getBirthday().isAfter(LocalDate.now())) {
-                log.error("Не удалось обновить пользователя: дата рождения не может быть в будущем.");
-                throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
-            }
+            validateUser(newUser);
 
             oldUser.setEmail(newUser.getEmail());
             oldUser.setLogin(newUser.getLogin());
@@ -85,6 +63,21 @@ public class UserController {
         log.error("Не удалось обновить пользователя: пользователь с ID {} не найден.", newUser.getId());
         throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
 
+    }
+
+    private void validateUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+            log.error("Не удалось создать пользователя: электронная почта не может быть пустой и должна содержать символ @.");
+            throw new ConditionsNotMetException("Электронная почта не может быть пустой и должна содержать символ @");
+        }
+        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            log.error("Не удалось создать пользователя: логин не может быть пустым и содержать пробелы.");
+            throw new ConditionsNotMetException("Логин не может быть пустым и содержать пробелы");
+        }
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Не удалось создать пользователя: дата рождения не может быть в будущем.");
+            throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
+        }
     }
 
     private long getNextId() {
