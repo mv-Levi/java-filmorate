@@ -5,6 +5,14 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.model.Film;
+<<<<<<< Updated upstream
+=======
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
+>>>>>>> Stashed changes
 
 import java.time.LocalDate;
 
@@ -13,10 +21,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmControllerTest {
     private FilmController filmController;
+<<<<<<< Updated upstream
 
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
+=======
+    private FilmStorage filmStorage;
+    private FilmService filmService;
+    private UserStorage userStorage;
+
+    @BeforeEach
+    void setUp() {
+        filmStorage = new InMemoryFilmStorage();
+        userStorage = new InMemoryUserStorage();
+        filmService = new FilmService(filmStorage, userStorage);
+        filmController = new FilmController(filmStorage, filmService);
+>>>>>>> Stashed changes
     }
 
     @Test
