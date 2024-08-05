@@ -16,12 +16,12 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
-    public Collection<User> getAllUsers() {
+    public Collection<User> getAll() {
         return users.values();
     }
 
     @Override
-    public User addUser(User user) {
+    public User add(User user) {
         validateUser(user);
 
         user.setId(getNextId());
@@ -38,7 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User newUser) {
+    public User update(User newUser) {
         if (newUser.getId() == null) {
             throw new ConditionsNotMetException("Id не должен быть пустым");
         }
@@ -58,7 +58,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUserById(long id) {
+    public Optional<User> getById(long id) {
         return Optional.ofNullable(users.get(id));
     }
 
