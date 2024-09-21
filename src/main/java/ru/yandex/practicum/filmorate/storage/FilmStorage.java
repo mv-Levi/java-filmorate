@@ -20,6 +20,6 @@ public interface FilmStorage {
 
     // Методы для управления лайками
     void likeFilm(long filmId, long userId);
-    
+
     void unlikeFilm(long filmId, long userId);
 }
