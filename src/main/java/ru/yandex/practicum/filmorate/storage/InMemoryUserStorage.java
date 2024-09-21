@@ -1,19 +1,20 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
+@Qualifier("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, Set<Long>> friends = new HashMap<>(); // Храним друзей для каждого пользователя
 
     @Override
     public Collection<User> getAll() {
@@ -29,11 +30,8 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
 
-        user.setId(getNextId());
-        user.setBirthday(user.getBirthday());
-        user.setEmail(user.getEmail());
-        user.setLogin(user.getLogin());
         users.put(user.getId(), user);
+        friends.put(user.getId(), new HashSet<>()); // Инициализируем пустой список друзей
         return user;
     }
 
@@ -54,12 +52,41 @@ public class InMemoryUserStorage implements UserStorage {
             return oldUser;
         }
         throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
-
     }
 
     @Override
     public Optional<User> getById(long id) {
         return Optional.ofNullable(users.get(id));
+    }
+
+    @Override
+    public void delete(long id) {
+        users.remove(id);
+        friends.remove(id);  // Удаляем список друзей, если пользователь удалён
+    }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        validateFriendship(userId, friendId);
+        friends.get(userId).add(friendId); // Добавляем друга только для одного пользователя
+    }
+
+    @Override
+    public void removeFriend(long userId, long friendId) {
+        if (friends.containsKey(userId)) {
+            friends.get(userId).remove(friendId); // Удаляем друга из списка друзей пользователя
+        }
+    }
+
+    @Override
+    public List<User> getFriends(long userId) {
+        if (!friends.containsKey(userId)) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+        // Возвращаем список друзей пользователя
+        return friends.get(userId).stream()
+                .map(friendId -> users.get(friendId))
+                .collect(Collectors.toList());
     }
 
     private void validateUser(User user) {
@@ -71,6 +98,18 @@ public class InMemoryUserStorage implements UserStorage {
         }
         if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
             throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
+        }
+    }
+
+    private void validateFriendship(long userId, long friendId) {
+        if (!users.containsKey(userId)) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден");
+        }
+        if (!users.containsKey(friendId)) {
+            throw new NotFoundException("Друг с id = " + friendId + " не найден");
+        }
+        if (userId == friendId) {
+            throw new ConditionsNotMetException("Нельзя добавить себя в друзья");
         }
     }
 

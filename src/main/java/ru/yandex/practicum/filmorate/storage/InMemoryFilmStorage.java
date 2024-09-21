@@ -1,17 +1,17 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
+@Qualifier("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
@@ -65,6 +65,41 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (film.getDuration() <= 0) {
             throw new ConditionsNotMetException("Продолжительность фильма должна быть положительным числом");
         }
+    }
+
+    @Override
+    public void delete(long id) {
+
+    }
+
+    @Override
+    public List<Film> getPopular(int count) {
+        if (count <= 0) {
+            throw new ConditionsNotMetException("Количество популярных фильмов должно быть положительным");
+        }
+
+        return films.values().stream()
+                .sorted(Comparator.comparingInt((Film film) -> film.getLikes().size()).reversed())
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void likeFilm(long filmId, long userId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id = " + filmId + " не найден");
+        }
+        film.getLikes().add(userId);
+    }
+
+    @Override
+    public void unlikeFilm(long filmId, long userId) {
+        Film film = films.get(filmId);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id = " + filmId + " не найден");
+        }
+        film.getLikes().remove(userId);
     }
 
 
