@@ -29,7 +29,6 @@ public class FilmorateApplicationTests {
 
     private final UserDbStorage userStorage;
 
-    
     @Test
     public void testCreateAndFindFilm() {
         Film film = new Film();
@@ -41,7 +40,6 @@ public class FilmorateApplicationTests {
         mpaRating.setId(1L);
         mpaRating.setName("PG-13");
         film.setMpaRating(mpaRating);
-
 
         filmStorage.add(film);
 
@@ -133,8 +131,7 @@ public class FilmorateApplicationTests {
         Optional<Film> deletedFilm = filmStorage.getById(addedFilm.getId());
         assertFalse(deletedFilm.isPresent(), "Фильм должен быть удален");
     }
-
-
+    
     @Test
     public void testAddUser() {
         // Создаем нового пользователя
