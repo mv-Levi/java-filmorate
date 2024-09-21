@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.*;
+
 public class InMemoryGenreDbStorage extends GenreDbStorage {
     private final Map<Integer, Genre> genres = new HashMap<>();
 
