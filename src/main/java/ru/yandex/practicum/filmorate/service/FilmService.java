@@ -50,12 +50,10 @@ public class FilmService {
     }
 
     private void validateFilm(Film film) {
-        // Проверка названия фильма
         if (film.getName() == null || film.getName().isBlank()) {
             throw new ValidationException("Название фильма не может быть пустым");
         }
 
-        // Проверка даты релиза
         if (film.getReleaseDate() == null) {
             throw new ValidationException("Дата релиза не может быть пустой");
         }
@@ -63,12 +61,10 @@ public class FilmService {
             throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         }
 
-        // Проверка продолжительности фильма
         if (film.getDuration() <= 0) {
             throw new ValidationException("Продолжительность фильма должна быть положительной");
         }
 
-        // Проверка длины описания
         if (film.getDescription() != null && film.getDescription().length() > 200) {
             throw new ValidationException("Описание не может быть длиннее 200 символов");
         }
@@ -78,7 +74,7 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        setFilmGenresAndMpa(film);  // Устанавливаем жанры и рейтинг
+        setFilmGenresAndMpa(film);
         return filmStorage.update(film);
     }
 
@@ -104,20 +100,17 @@ public class FilmService {
         return filmStorage.getPopular(size);
     }
 
-    // Метод для получения фильма по ID или выброса исключения, если фильм не найден
     private Film findFilmByIdOrThrow(long id) {
         return filmStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм с id: %d не найден", id)));
     }
 
-    // Метод для получения пользователя по ID или выброса исключения, если пользователь не найден
     private User findUserByIdOrThrow(long id) {
         return userStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id: %d не найден", id)));
     }
 
     private void setFilmGenresAndMpa(Film film) {
-        // Проверка MPA рейтинга
         if (film.getMpaRating() != null) {
             Long mpaId = film.getMpaRating().getId();
             if (mpaId == null) {
@@ -129,7 +122,6 @@ public class FilmService {
             }
         }
 
-        // Проверка жанров
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
                 if (genre.getId() == null) {

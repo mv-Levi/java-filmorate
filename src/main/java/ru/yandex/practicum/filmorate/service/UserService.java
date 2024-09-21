@@ -34,7 +34,6 @@ public class UserService {
             throw new ValidationException("Имя пользователя не может быть пустым");
         }
 
-        // Добавление пользователя, если все данные корректны
         return userStorage.add(user);
     }
 
@@ -46,36 +45,32 @@ public class UserService {
         return findUserByIdOrThrow(id);
     }
 
-    // Добавление друга (односторонняя дружба)
     public void addFriend(long userId, long friendId) {
-        findUserByIdOrThrow(userId);  // Проверка, что пользователь существует
-        findUserByIdOrThrow(friendId);  // Проверка, что друг существует
-        userStorage.addFriend(userId, friendId);  // Только userId добавляет friendId как друга
+        findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(friendId);
+        userStorage.addFriend(userId, friendId);
         log.info("Пользователь с id: {} добавил в друзья пользователя с id: {}", userId, friendId);
     }
 
-    // Удаление друга
     public void removeFriend(long userId, long friendId) {
-        findUserByIdOrThrow(userId);  // Проверка, что пользователь существует
-        findUserByIdOrThrow(friendId);  // Проверка, что друг существует
-        userStorage.removeFriend(userId, friendId);  // Только userId удаляет friendId из друзей
+        findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(friendId);
+        userStorage.removeFriend(userId, friendId);
         log.info("Пользователь с id: {} удалил из друзей пользователя с id: {}", userId, friendId);
     }
 
-    // Получение всех друзей пользователя (кого добавил пользователь)
     public List<User> getAllFriends(long userId) {
-        findUserByIdOrThrow(userId);  // Проверка, что пользователь существует
+        findUserByIdOrThrow(userId);
         log.info("Получение списка друзей пользователя с id: {}", userId);
-        return userStorage.getFriends(userId);  // Получаем список друзей из хранилища
+        return userStorage.getFriends(userId);
     }
 
-    // Получение списка общих друзей двух пользователей
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        findUserByIdOrThrow(userId);  // Проверка, что пользователь существует
-        findUserByIdOrThrow(otherUserId);  // Проверка, что второй пользователь существует
+        findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(otherUserId);
         Set<Long> userFriends = userStorage.getFriends(userId).stream().map(User::getId).collect(Collectors.toSet());
         Set<Long> otherUserFriends = userStorage.getFriends(otherUserId).stream().map(User::getId).collect(Collectors.toSet());
-        userFriends.retainAll(otherUserFriends);  // Найти пересекающиеся ID друзей
+        userFriends.retainAll(otherUserFriends);
         log.info("Получение списка общих друзей пользователя с id: {} и пользователя с id: {}", userId, otherUserId);
         return userFriends.stream()
                 .map(this::findUserByIdOrThrow)
