@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate;
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +45,7 @@ public class FilmorateApplicationTests {
         filmStorage.add(film);
 
         Optional<Film> filmOptional = filmStorage.getById(film.getId());
-        assertThat(filmOptional).isPresent()
-                .hasValueSatisfying(f ->
-                        assertThat(f).hasFieldOrPropertyWithValue("name", "New Film")
-                );
+        assertThat(filmOptional).isPresent().hasValueSatisfying(f -> assertThat(f).hasFieldOrPropertyWithValue("name", "New Film"));
     }
 
     @Test
@@ -131,7 +129,7 @@ public class FilmorateApplicationTests {
         Optional<Film> deletedFilm = filmStorage.getById(addedFilm.getId());
         assertFalse(deletedFilm.isPresent(), "Фильм должен быть удален");
     }
-    
+
     @Test
     public void testAddUser() {
         // Создаем нового пользователя
