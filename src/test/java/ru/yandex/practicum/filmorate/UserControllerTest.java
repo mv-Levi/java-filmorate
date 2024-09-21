@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
@@ -34,12 +35,12 @@ public class UserControllerTest {
         user.setName("name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
+        Exception exception = assertThrows(ValidationException.class, () -> {
             user.setEmail("invalidEmail");
             userController.create(user);
         });
 
-        assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
+        assertEquals("Некорректный email", exception.getMessage());
     }
 
     @Test
@@ -80,7 +81,7 @@ public class UserControllerTest {
         user.setName("name");
         user.setBirthday(LocalDate.of(2000, 1, 1));
 
-        User createdUser = userController.create(user);
+        User createdUser = userController.create(user).getBody();
         assertEquals(1, createdUser.getId());
         assertEquals("email@example.com", createdUser.getEmail());
         assertEquals("login", createdUser.getLogin());
