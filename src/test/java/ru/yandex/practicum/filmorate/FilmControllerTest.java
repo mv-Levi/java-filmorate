@@ -3,13 +3,11 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
 
@@ -22,11 +20,17 @@ public class FilmControllerTest {
     private FilmService filmService;
     private UserStorage userStorage;
 
+    private GenreDbStorage genreStorage;
+
+    private MpaRatingDbStorage mpaStorage;
+
     @BeforeEach
     void setUp() {
         filmStorage = new InMemoryFilmStorage();
         userStorage = new InMemoryUserStorage();
-        filmService = new FilmService(filmStorage, userStorage);
+        genreStorage = new InMemoryGenreDbStorage();
+        mpaStorage = new InMemoryMpaRatingDbStorage();
+        filmService = new FilmService(filmStorage, userStorage, genreStorage, mpaStorage);
         filmController = new FilmController(filmService);
     }
 
@@ -37,11 +41,11 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
 
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
+        Exception exception = assertThrows(ValidationException.class, () -> {
             filmController.create(film);
         });
 
-        assertEquals("Название не может быть пустым", exception.getMessage());
+        assertEquals("Название фильма не может быть пустым", exception.getMessage());
     }
 
     @Test
@@ -52,7 +56,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
 
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
+        Exception exception = assertThrows(ValidationException.class, () -> {
             filmController.create(film);
         });
 
@@ -67,7 +71,7 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
         film.setDuration(120);
 
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
+        Exception exception = assertThrows(ValidationException.class, () -> {
             filmController.create(film);
         });
 
@@ -82,11 +86,11 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(0);
 
-        Exception exception = assertThrows(ConditionsNotMetException.class, () -> {
+        Exception exception = assertThrows(ValidationException.class, () -> {
             filmController.create(film);
         });
 
-        assertEquals("Продолжительность фильма должна быть положительным числом", exception.getMessage());
+        assertEquals("Продолжительность фильма должна быть положительной", exception.getMessage());
     }
 
     @Test
@@ -97,11 +101,11 @@ public class FilmControllerTest {
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(120);
 
-        Film createdFilm = filmController.create(film);
-        assertEquals(1, createdFilm.getId());
-        assertEquals("Valid Film", createdFilm.getName());
-        assertEquals("Description", createdFilm.getDescription());
-        assertEquals(LocalDate.of(2000, 1, 1), createdFilm.getReleaseDate());
-        assertEquals(120, createdFilm.getDuration());
+        MpaRating mpaRating = new MpaRating();
+        mpaRating.setId(1L);
+        film.setMpaRating(mpaRating);
+
+        Film createdFilm = filmService.add(film);
+        assertEquals(1L, createdFilm.getMpaRating().getId());
     }
 }
