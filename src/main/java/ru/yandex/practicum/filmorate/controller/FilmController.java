@@ -29,14 +29,14 @@ public class FilmController {
     public ResponseEntity<Film> create(@RequestBody Film film) {
         log.info("Создание нового фильма: {}", film);
         Film createdFilm = filmService.add(film);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);  // Возвращаем статус 201 Created
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdFilm);
     }
 
     @PutMapping
     public ResponseEntity<Film> update(@RequestBody Film newFilm) {
         log.info("Обновление фильма: {}", newFilm);
         Film updatedFilm = filmService.update(newFilm);
-        return ResponseEntity.ok(updatedFilm);  // Возвращаем статус 200 OK
+        return ResponseEntity.ok(updatedFilm);
     }
 
     @PutMapping("{id}/like/{userId}")
@@ -44,10 +44,10 @@ public class FilmController {
         log.info("Пользователь с id: {} ставит лайк фильму с id: {}", userId, id);
         try {
             filmService.addLike(id, userId);
-            return ResponseEntity.ok().build();  // Возвращаем статус 200 OK
+            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             log.error("Ошибка: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем статус 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -56,10 +56,10 @@ public class FilmController {
         log.info("Пользователь с id: {} удаляет лайк с фильма с id: {}", userId, id);
         try {
             filmService.removeLike(id, userId);
-            return ResponseEntity.ok().build();  // Возвращаем статус 200 OK
+            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             log.error("Ошибка: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем статус 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -68,10 +68,10 @@ public class FilmController {
         log.info("Получение фильма с id: {}", id);
         try {
             Film film = filmService.getById(id);
-            return ResponseEntity.ok(film);  // Возвращаем статус 200 OK
+            return ResponseEntity.ok(film);
         } catch (NotFoundException e) {
             log.error("Ошибка: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем статус 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -79,7 +79,7 @@ public class FilmController {
     public ResponseEntity<List<Film>> getMostPopular(@RequestParam(defaultValue = "10") int size) {
         log.info("Получение {} самых популярных фильмов", size);
         List<Film> popularFilms = filmService.getMostPopular(size);
-        return ResponseEntity.ok(popularFilms);  // Возвращаем статус 200 OK
+        return ResponseEntity.ok(popularFilms);
     }
 
 }

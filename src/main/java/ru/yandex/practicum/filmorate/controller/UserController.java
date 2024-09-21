@@ -29,28 +29,28 @@ public class UserController {
     public ResponseEntity<User> create(@RequestBody User user) {
         log.info("Создание нового пользователя: {}", user);
         User createdUser = userService.add(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);  // Возвращаем 201 Created
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
     @PutMapping
     public ResponseEntity<User> update(@RequestBody User newUser) {
         log.info("Обновление пользователя: {}", newUser);
         User updatedUser = userService.update(newUser);
-        return ResponseEntity.ok(updatedUser);  // Возвращаем 200 OK
+        return ResponseEntity.ok(updatedUser);
     }
 
     @PutMapping("{id}/friends/{friendId}")
     public ResponseEntity<Void> add(@PathVariable long id, @PathVariable long friendId) {
         log.info("Пользователь с id: {} добавляет в друзья пользователя с id: {}", id, friendId);
         userService.addFriend(id, friendId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // Возвращаем 204 No Content
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @DeleteMapping("{id}/friends/{friendId}")
     public ResponseEntity<Void> remove(@PathVariable long id, @PathVariable long friendId) {
         log.info("Пользователь с id: {} удаляет из друзей пользователя с id: {}", id, friendId);
         userService.removeFriend(id, friendId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();  // Возвращаем 204 No Content
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/{id}")
@@ -58,10 +58,10 @@ public class UserController {
         log.info("Получение пользователя с id: {}", id);
         try {
             User user = userService.getById(id);
-            return ResponseEntity.ok(user);  // Возвращаем 200 OK
+            return ResponseEntity.ok(user);
         } catch (NotFoundException e) {
             log.error("Ошибка при получении пользователя с id: {}", id, e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Возвращаем 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
@@ -69,14 +69,14 @@ public class UserController {
     public ResponseEntity<List<User>> getCommon(@PathVariable long id, @PathVariable long otherId) {
         log.info("Получение списка общих друзей пользователя с id: {} и пользователя с id: {}", id, otherId);
         List<User> commonFriends = userService.getCommonFriends(id, otherId);
-        return ResponseEntity.ok(commonFriends);  // Возвращаем 200 OK
+        return ResponseEntity.ok(commonFriends);
     }
 
     @GetMapping("{id}/friends")
     public ResponseEntity<List<User>> getAll(@PathVariable long id) {
         log.info("Получение списка друзей пользователя с id: {}", id);
         List<User> friends = userService.getAllFriends(id);
-        return ResponseEntity.ok(friends);  // Возвращаем 200 OK
+        return ResponseEntity.ok(friends);
     }
 
 
