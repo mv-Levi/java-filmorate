@@ -60,7 +60,6 @@ public class FilmorateApplicationTests {
 
         Film savedFilm = filmStorage.add(film);
 
-        // Обновляем информацию о фильме
         savedFilm.setName("Updated Film");
         savedFilm.setDescription("Updated Description");
 
@@ -75,7 +74,6 @@ public class FilmorateApplicationTests {
 
     @Test
     public void testGetAllFilms() {
-        // Добавляем первый фильм
         Film film1 = new Film();
         film1.setName("Film 1");
         film1.setDescription("Description 1");
@@ -85,7 +83,6 @@ public class FilmorateApplicationTests {
         film1.setMpaRating(mpaRating1);
         filmStorage.add(film1);
 
-        // Добавляем второй фильм
         Film film2 = new Film();
         film2.setName("Film 2");
         film2.setDescription("Description 2");
@@ -95,14 +92,11 @@ public class FilmorateApplicationTests {
         film2.setMpaRating(mpaRating2);
         filmStorage.add(film2);
 
-        // Получаем все фильмы
         Collection<Film> films = filmStorage.getAll();
 
-        // Проверяем, что возвращены все добавленные фильмы
         assertNotNull(films);
         assertEquals(2, films.size());
 
-        // Проверяем содержимое коллекции
         List<String> filmNames = films.stream().map(Film::getName).toList();
         assertTrue(filmNames.contains("Film 1"));
         assertTrue(filmNames.contains("Film 2"));
@@ -110,7 +104,6 @@ public class FilmorateApplicationTests {
 
     @Test
     public void testDeleteFilm() {
-        // Добавляем фильм
         Film film = new Film();
         film.setName("Test Film");
         film.setDescription("Test Description");
@@ -122,17 +115,14 @@ public class FilmorateApplicationTests {
 
         Film addedFilm = filmStorage.add(film);
 
-        // Удаляем фильм
         filmStorage.delete(addedFilm.getId());
 
-        // Проверяем, что фильм действительно удален
         Optional<Film> deletedFilm = filmStorage.getById(addedFilm.getId());
         assertFalse(deletedFilm.isPresent(), "Фильм должен быть удален");
     }
 
     @Test
     public void testAddUser() {
-        // Создаем нового пользователя
         User user = new User();
         user.setEmail("test@example.com");
         user.setLogin("testlogin");
@@ -141,7 +131,6 @@ public class FilmorateApplicationTests {
 
         User addedUser = userStorage.add(user);
 
-        // Проверяем, что пользователь успешно добавлен
         assertNotNull(addedUser);
         assertEquals("test@example.com", addedUser.getEmail());
         assertEquals("testlogin", addedUser.getLogin());
@@ -151,7 +140,6 @@ public class FilmorateApplicationTests {
 
     @Test
     public void testUpdateUser() {
-        // Сначала добавляем пользователя
         User user = new User();
         user.setEmail("test@example.com");
         user.setLogin("testlogin");
@@ -160,20 +148,17 @@ public class FilmorateApplicationTests {
 
         User addedUser = userStorage.add(user);
 
-        // Изменяем данные пользователя
         addedUser.setEmail("updated@example.com");
         addedUser.setName("Updated User");
 
         User updatedUser = userStorage.update(addedUser);
 
-        // Проверяем, что данные обновлены
         assertEquals("updated@example.com", updatedUser.getEmail());
         assertEquals("Updated User", updatedUser.getName());
     }
 
     @Test
     public void testGetUserById() {
-        // Добавляем нового пользователя
         User user = new User();
         user.setEmail("test@example.com");
         user.setLogin("testlogin");
@@ -182,10 +167,8 @@ public class FilmorateApplicationTests {
 
         User addedUser = userStorage.add(user);
 
-        // Получаем пользователя по его ID
         Optional<User> foundUser = userStorage.getById(addedUser.getId());
 
-        // Проверяем, что пользователь найден и данные совпадают
         assertTrue(foundUser.isPresent());
         assertEquals("test@example.com", foundUser.get().getEmail());
         assertEquals("Test User", foundUser.get().getName());
@@ -193,7 +176,6 @@ public class FilmorateApplicationTests {
 
     @Test
     public void testGetAllUsers() {
-        // Добавляем нескольких пользователей
         User user1 = new User();
         user1.setEmail("user1@example.com");
         user1.setLogin("user1login");
@@ -208,21 +190,17 @@ public class FilmorateApplicationTests {
         user2.setBirthday(LocalDate.of(1992, 2, 2));
         userStorage.add(user2);
 
-        // Получаем всех пользователей
         Collection<User> users = userStorage.getAll();
 
-        // Проверяем, что вернулись все добавленные пользователи
         assertNotNull(users);
         assertEquals(2, users.size());
 
-        // Проверяем, что данные пользователей корректны
         assertTrue(users.stream().anyMatch(u -> u.getEmail().equals("user1@example.com")));
         assertTrue(users.stream().anyMatch(u -> u.getEmail().equals("user2@example.com")));
     }
 
     @Test
     public void testDeleteUser() {
-        // Добавляем пользователя
         User user = new User();
         user.setEmail("test@example.com");
         user.setLogin("testlogin");
@@ -231,10 +209,8 @@ public class FilmorateApplicationTests {
 
         User addedUser = userStorage.add(user);
 
-        // Удаляем пользователя
         userStorage.delete(addedUser.getId());
 
-        // Проверяем, что пользователя больше нет
         Optional<User> deletedUser = userStorage.getById(addedUser.getId());
         assertFalse(deletedUser.isPresent());
     }
