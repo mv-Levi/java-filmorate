@@ -17,12 +17,9 @@ public interface UserStorage {
 
     void delete(long id);
 
-    // Добавление друга (односторонняя дружба)
     void addFriend(long userId, long friendId);
 
-    // Удаление друга (односторонняя дружба)
     void removeFriend(long userId, long friendId);
 
-    //Получение всех друзей пользователя
     List<User> getFriends(long userId);
 }

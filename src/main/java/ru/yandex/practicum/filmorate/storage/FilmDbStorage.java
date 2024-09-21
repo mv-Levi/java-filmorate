@@ -33,7 +33,6 @@ public class FilmDbStorage implements FilmStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Вложенный класс FilmRowMapper для маппинга результата SQL-запросов
     private class FilmRowMapper implements RowMapper<Film> {
         @Override
         public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -57,11 +56,10 @@ public class FilmDbStorage implements FilmStorage {
                     mpaRating
             );
 
-            // Добавляем запрос для получения жанров
             String genreSql = "SELECT g.genre_id, g.name FROM film_genres fg " +
                     "JOIN genres g ON fg.genre_id = g.genre_id WHERE fg.film_id = ?";
             List<Genre> genres = jdbcTemplate.query(genreSql, new GenreRowMapper(), film.getId());
-            film.setGenres(new HashSet<>(genres)); // Устанавливаем жанры
+            film.setGenres(new HashSet<>(genres));
 
             return film;
         }
@@ -136,7 +134,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void delete(long id) {
-        // Сначала проверяем, существует ли фильм с данным ID
         String checkSql = "SELECT COUNT(*) FROM films WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, id);
 
@@ -170,7 +167,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void likeFilm(long filmId, long userId) {
-        // Проверка существования фильма
         String checkFilmSql = "SELECT COUNT(*) FROM films WHERE id = ?";
         Integer filmCount = jdbcTemplate.queryForObject(checkFilmSql, Integer.class, filmId);
 
@@ -178,7 +174,6 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с id " + filmId + " не найден");
         }
 
-        // Проверка существования пользователя
         String checkUserSql = "SELECT COUNT(*) FROM users WHERE id = ?";
         Integer userCount = jdbcTemplate.queryForObject(checkUserSql, Integer.class, userId);
 
@@ -186,7 +181,6 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
 
-        // Проверка, что лайк уже не существует
         String checkLikeSql = "SELECT COUNT(*) FROM film_likes WHERE film_id = ? AND user_id = ?";
         Integer likeCount = jdbcTemplate.queryForObject(checkLikeSql, Integer.class, filmId, userId);
 
@@ -194,14 +188,12 @@ public class FilmDbStorage implements FilmStorage {
             throw new ConditionsNotMetException("Пользователь с id " + userId + " уже поставил лайк фильму с id " + filmId);
         }
 
-        // Добавление лайка
         String insertLikeSql = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
         jdbcTemplate.update(insertLikeSql, filmId, userId);
     }
 
     @Override
     public void unlikeFilm(long filmId, long userId) {
-        // Проверка существования фильма
         String checkFilmSql = "SELECT COUNT(*) FROM films WHERE id = ?";
         Integer filmCount = jdbcTemplate.queryForObject(checkFilmSql, Integer.class, filmId);
 
@@ -209,7 +201,6 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с id " + filmId + " не найден");
         }
 
-        // Проверка существования пользователя
         String checkUserSql = "SELECT COUNT(*) FROM users WHERE id = ?";
         Integer userCount = jdbcTemplate.queryForObject(checkUserSql, Integer.class, userId);
 
@@ -217,7 +208,6 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
 
-        // Проверка, что лайк существует
         String checkLikeSql = "SELECT COUNT(*) FROM film_likes WHERE film_id = ? AND user_id = ?";
         Integer likeCount = jdbcTemplate.queryForObject(checkLikeSql, Integer.class, filmId, userId);
 
@@ -225,7 +215,6 @@ public class FilmDbStorage implements FilmStorage {
             throw new ConditionsNotMetException("Пользователь с id " + userId + " не поставил лайк фильму с id " + filmId);
         }
 
-        // Удаление лайка
         String deleteLikeSql = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(deleteLikeSql, filmId, userId);
     }

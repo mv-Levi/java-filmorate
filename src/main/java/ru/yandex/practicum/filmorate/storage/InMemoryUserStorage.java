@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Qualifier("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
-    private final Map<Long, Set<Long>> friends = new HashMap<>(); // Храним друзей для каждого пользователя
+    private final Map<Long, Set<Long>> friends = new HashMap<>();
 
     @Override
     public Collection<User> getAll() {
@@ -31,7 +31,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
 
         users.put(user.getId(), user);
-        friends.put(user.getId(), new HashSet<>()); // Инициализируем пустой список друзей
+        friends.put(user.getId(), new HashSet<>());
         return user;
     }
 
@@ -62,19 +62,19 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void delete(long id) {
         users.remove(id);
-        friends.remove(id);  // Удаляем список друзей, если пользователь удалён
+        friends.remove(id);
     }
 
     @Override
     public void addFriend(long userId, long friendId) {
         validateFriendship(userId, friendId);
-        friends.get(userId).add(friendId); // Добавляем друга только для одного пользователя
+        friends.get(userId).add(friendId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
         if (friends.containsKey(userId)) {
-            friends.get(userId).remove(friendId); // Удаляем друга из списка друзей пользователя
+            friends.get(userId).remove(friendId);
         }
     }
 
@@ -83,7 +83,6 @@ public class InMemoryUserStorage implements UserStorage {
         if (!friends.containsKey(userId)) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден");
         }
-        // Возвращаем список друзей пользователя
         return friends.get(userId).stream()
                 .map(friendId -> users.get(friendId))
                 .collect(Collectors.toList());

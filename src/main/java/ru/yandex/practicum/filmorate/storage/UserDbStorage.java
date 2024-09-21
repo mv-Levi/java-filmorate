@@ -86,36 +86,30 @@ public class UserDbStorage implements UserStorage {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
 
-        // Если пользователь найден, удаляем его
         String sql = "DELETE FROM users WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
 
-    // Метод для добавления друга (односторонняя дружба)
     public void addFriend(long userId, long friendId) {
         String sql = "INSERT INTO friends (user_id, friend_id) VALUES (?, ?)";
-        jdbcTemplate.update(sql, userId, friendId);  // Добавляем запись только для userId -> friendId
+        jdbcTemplate.update(sql, userId, friendId);
     }
 
-    // Метод для удаления друга
     public void removeFriend(long userId, long friendId) {
         String sql = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql, userId, friendId);  // Удаляем запись только для userId -> friendId
+        jdbcTemplate.update(sql, userId, friendId);
     }
 
-    // Метод для получения списка друзей пользователя (кого добавил пользователь)
     public List<User> getFriends(long userId) {
         String sql = "SELECT u.* FROM users u JOIN friends f ON u.id = f.friend_id WHERE f.user_id = ?";
         return jdbcTemplate.query(sql, new UserRowMapper(), userId);
     }
 
-    // Метод для получения списка пользователей, которые добавили данного пользователя в друзья (заявки в друзья)
     public List<User> getFriendRequests(long userId) {
         String sql = "SELECT u.* FROM users u JOIN friends f ON u.id = f.user_id WHERE f.friend_id = ?";
         return jdbcTemplate.query(sql, new UserRowMapper(), userId);
     }
 
-    // Маппер для преобразования результатов запроса в объект User
     private static class UserRowMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
