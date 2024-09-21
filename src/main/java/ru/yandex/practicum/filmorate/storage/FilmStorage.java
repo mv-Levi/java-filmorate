@@ -19,7 +19,4 @@ public interface FilmStorage {
 
     List<Film> getPopular(int count);
 
-    // Методы для управления лайками
-    void likeFilm(long filmId, long userId);
-    void unlikeFilm(long filmId, long userId);
 }
