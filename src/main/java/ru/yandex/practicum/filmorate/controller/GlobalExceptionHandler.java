@@ -38,4 +38,5 @@ public class GlobalExceptionHandler {
         response.put("error", "Внутренняя ошибка сервера");
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }

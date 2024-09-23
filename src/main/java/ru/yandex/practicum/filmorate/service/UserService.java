@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -25,6 +27,13 @@ public class UserService {
     }
 
     public User add(User user) {
+        if (user.getEmail() == null || !user.getEmail().contains("@")) {
+            throw new ValidationException("Некорректный email");
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            throw new ValidationException("Имя пользователя не может быть пустым");
+        }
+
         return userStorage.add(user);
     }
 
@@ -37,52 +46,39 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
-        User user = findUserByIdOrThrow(userId);
-        User friend = findFriendByIdOrThrow(friendId);
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(friendId);
+        userStorage.addFriend(userId, friendId);
         log.info("Пользователь с id: {} добавил в друзья пользователя с id: {}", userId, friendId);
-        userStorage.update(user);
-        userStorage.update(friend);
     }
 
     public void removeFriend(long userId, long friendId) {
-        User user = findUserByIdOrThrow(userId);
-        User friend = findFriendByIdOrThrow(friendId);
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(friendId);
+        userStorage.removeFriend(userId, friendId);
         log.info("Пользователь с id: {} удалил из друзей пользователя с id: {}", userId, friendId);
-        userStorage.update(user);
-        userStorage.update(friend);
     }
 
     public List<User> getAllFriends(long userId) {
-        User user = findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(userId);
         log.info("Получение списка друзей пользователя с id: {}", userId);
-        return user.getFriends().stream()
-                .map(friendId -> findFriendByIdOrThrow(friendId))
-                .collect(Collectors.toList());
+        return userStorage.getFriends(userId);
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        User user = findUserByIdOrThrow(userId);
-        User otherUser = findFriendByIdOrThrow(otherUserId);
-        Set<Long> commonFriendsIds = user.getFriends().stream()
-                .filter(otherUser.getFriends()::contains)
-                .collect(Collectors.toSet());
-        log.info("Получение списка общих друзей пользователя с id: {} и пользователя с id: {}", userId, otherUser);
-        return commonFriendsIds.stream()
-                .map(friendId -> findUserByIdOrThrow(friendId))
+        findUserByIdOrThrow(userId);
+        findUserByIdOrThrow(otherUserId);
+        Set<Long> userFriends = userStorage.getFriends(userId).stream().map(User::getId).collect(Collectors.toSet());
+        Set<Long> otherUserFriends = userStorage.getFriends(otherUserId).stream().map(User::getId).collect(Collectors.toSet());
+        userFriends.retainAll(otherUserFriends);
+        log.info("Получение списка общих друзей пользователя с id: {} и пользователя с id: {}", userId, otherUserId);
+        return userFriends.stream()
+                .map(this::findUserByIdOrThrow)
                 .collect(Collectors.toList());
     }
 
     private User findUserByIdOrThrow(long id) {
         return userStorage.getById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id: %d не найден", id)));
-    }
-
-    private User findFriendByIdOrThrow(long id) {
-        return userStorage.getById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Друг с id: %d не найден", id)));
     }
 }
